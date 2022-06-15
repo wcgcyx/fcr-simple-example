@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div class="card-body" style="height:550px;width:400px">
+      <!-- Account basic info -->
+      <button class="btn btn-primary btn-lg mb-3" id="refreshButton">Refresh</button>
+      <h4 class="card-title">Account:</h4>
+      <p class="info-text"> <span id="AccountAddr">Waiting account...</span></p>
+      <h4 class="card-title">Balance:</h4>
+      <p class="info-text"> <span id="AccountBalance">Waiting balance...</span></p>
+      <h4 class="card-title">Active outbound channels:</h4>
+      <p class="info-text"> <span id="ChannelSummary">Waiting channel summary...</span></p>
+      <div style="height:120px;width:400px;border:1px solid;font:13px Georgia, Garamond, Serif;overflow:auto;" id="ChannelInfos">
+      </div>
+      <h4 class="card-title">Operations:</h4>
+      <!-- Home page -->
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="CreateButton">Create Channel</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="TopupButton">Topup Channel</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="RenewButton">Renew Channel</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="BearLossButton">Bear Loss</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="RetrievalPermissionButton">Retrieval Permission</button>
+      </div>
+      <!-- Create page -->
+      <div class="row">
+        <input type="text" id="CreateTargetAddr"></input>
+        <label id="CreateTargetAddrText">Target Recipient</label>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="CreateQueryOfferButton">Query</button>
+      </div>
+      <div class="row">
+        <input type="number" id="CreateAmount"></input>
+        <label id="CreateAmountText">Amount</label>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="CreateConfirmButton">Create</button>
+      </div>
+      <p class="info-text"> <span id="CreateQueryOfferInfo"></span></p>
+      <!-- Topup page -->
+      <div class="row">
+        <input type="text" id="TopupTargetAddr"></input>
+        <label id="TopupTargetAddrText">Target Channel</label>
+      </div>
+      <div class="row">
+        <input type="number" id="TopupAmount"></input>
+        <label id="TopupAmountText">Amount</label>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="TopupConfirmButton">Topup</button>
+      </div>
+      <!-- Renew page -->
+      <div class="row">
+        <input type="text" id="RenewTargetAddr"></input>
+        <label id="RenewTargetAddrText">Target Channel</label>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="RenewConfirmButton">Renew</button>
+      </div>
+      <!-- Bear loss page -->
+      <div class="row">
+        <input type="text" id="BearLossTargetAddr"></input>
+        <label id="BearLossTargetAddrText">Target Channel</label>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="BearLossConfirmButtion">Bear Loss</button>
+      </div>
+      <!-- Retrieval permission -->
+      <p class="info-text"> <span id="CurrentPermissionInfo">Current permission</span></p>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="AllowButton">Allow</button>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="DisallowButton">Disallow</button>
+      </div>
+      <!-- Back button -->
+      <div class="row">
+        <button class="btn btn-primary btn-lg mb-3" id="BackButton">Back</button>
+      </div>
+      <p class="info-text alert alert-secondary"> Log: <span id="Log"></span></p>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
