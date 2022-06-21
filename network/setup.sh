@@ -24,8 +24,8 @@ key=$(./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT wallet generate 1)
 ./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT wallet set 1 1 $key
 
 # Connect network
-id=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT system addr | cut -d "/" -f7)
-port=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT system addr | cut -d "/" -f5)
+id=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT system addr | rev | cut -d "/" -f1 | cut -d "]" -f2 | rev)
+port=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT system addr | rev | cut -d "/" -f3 | rev)
 addr="/ip4/127.0.0.1/tcp/$port/p2p/$id"
 ./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT system connect $addr
 ./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT system connect $addr
