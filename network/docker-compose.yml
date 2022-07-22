@@ -1,0 +1,69 @@
+services:
+  mc:
+    image: wcgcyx/fcr
+    container_name: fcr-example-mockchain
+    networks:
+      - shared
+    command: mc
+  
+  provider1:
+    image: wcgcyx/fcr
+    container_name: fcr-example-provider1
+    networks:
+      - shared
+    command: fcr daemon
+    volumes:
+      - ./node_config.yaml:/root/.fcr/config.yaml
+      - ./vidgen:/vidgen
+    depends_on:
+      - mc
+  
+  provider2:
+    image: wcgcyx/fcr
+    container_name: fcr-example-provider2
+    networks:
+      - shared
+    command: fcr daemon
+    volumes:
+      - ./node_config.yaml:/root/.fcr/config.yaml
+      - ./vidgen:/vidgen
+    depends_on:
+      - mc
+  
+  broker1:
+    image: wcgcyx/fcr
+    container_name: fcr-example-broker1
+    networks:
+      - shared
+    command: fcr daemon
+    volumes:
+      - ./node_config.yaml:/root/.fcr/config.yaml
+    depends_on:
+      - mc
+
+  broker2:
+    image: wcgcyx/fcr
+    container_name: fcr-example-broker2
+    networks:
+      - shared
+    command: fcr daemon
+    volumes:
+      - ./node_config.yaml:/root/.fcr/config.yaml
+    depends_on:
+      - mc
+
+  user:
+    image: wcgcyx/fcr
+    container_name: fcr-example-user
+    networks:
+      - shared
+    command: fcr daemon
+    volumes:
+      - ./node_config.yaml:/root/.fcr/config.yaml
+    depends_on:
+      - mc
+
+networks:
+  shared:
+    name: shared
+    external: false

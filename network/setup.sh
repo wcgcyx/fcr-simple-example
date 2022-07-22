@@ -1,72 +1,69 @@
 #!/bin/bash
 
-USER_PORT=9424
-BROKER1_PORT=9425
-BROKER2_PORT=9426
-PROVIDER1_PORT=9427
-PROVIDER2_PORT=9428
-USER_TOKEN="./fcr-user/token"
-BROKER1_TOKEN="./fcr-broker1/token"
-BROKER2_TOKEN="./fcr-broker2/token"
-PROVIDER1_TOKEN="./fcr-provider1/token"
-PROVIDER2_TOKEN="./fcr-provider2/token"
+USER="fcr-example-user"
+BROKER1="fcr-example-broker1"
+BROKER2="fcr-example-broker2"
+PROVIDER1="fcr-example-provider1"
+PROVIDER2="fcr-example-provider2"
+
+# Install vidgen binary
+docker exec $PROVIDER1 sh -c "go build -o /go/bin/vidgen /vidgen/cmd/vidgen/*"
+docker exec $PROVIDER2 sh -c "go build -o /go/bin/vidgen /vidgen/cmd/vidgen/*"
 
 # Setup wallet
-key=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT wallet generate 1)
-./binary/fcr -a $USER_TOKEN -p $USER_PORT wallet set 1 1 $key
-key=$(./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT wallet generate 1)
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT wallet set 1 1 $key
-key=$(./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT wallet generate 1)
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT wallet set 1 1 $key
-key=$(./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT wallet generate 1)
-./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT wallet set 1 1 $key
-key=$(./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT wallet generate 1)
-./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT wallet set 1 1 $key
+key=$(docker exec $USER fcr wallet generate 1)
+docker exec $USER fcr wallet set 1 1 $key
+key=$(docker exec $BROKER1 fcr wallet generate 1)
+docker exec $BROKER1 fcr wallet set 1 1 $key
+key=$(docker exec $BROKER2 fcr wallet generate 1)
+docker exec $BROKER2 fcr wallet set 1 1 $key
+key=$(docker exec $PROVIDER1 fcr wallet generate 1)
+docker exec $PROVIDER1 fcr wallet set 1 1 $key
+key=$(docker exec $PROVIDER2 fcr wallet generate 1)
+docker exec $PROVIDER2 fcr wallet set 1 1 $key
 
 # Connect network
-id=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT system addr | rev | cut -d "/" -f1 | cut -d "]" -f2 | rev)
-port=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT system addr | rev | cut -d "/" -f3 | rev)
-addr="/ip4/127.0.0.1/tcp/$port/p2p/$id"
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT system connect $addr
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT system connect $addr
-./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT system connect $addr
-./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT system connect $addr
-./binary/fcr -a $USER_TOKEN -p $USER_PORT system publish
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT system publish
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT system publish
-./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT system publish
-./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT system publish
+addr=$(docker exec $USER fcr system addr | cut -d " " -f1 | cut -d "[" -f2)
+docker exec $BROKER1 fcr system connect $addr
+docker exec $BROKER2 fcr system connect $addr
+docker exec $PROVIDER1 fcr system connect $addr
+docker exec $PROVIDER2 fcr system connect $addr
+docker exec $USER fcr system publish
+docker exec $BROKER1 fcr system publish
+docker exec $BROKER2 fcr system publish
+docker exec $PROVIDER1 fcr system publish
+docker exec $PROVIDER2 fcr system publish
 
 # Set policy
-./binary/fcr -a $USER_TOKEN -p $USER_PORT paynet policy settle set 1 default 1000h
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet policy settle set 1 default 1000h
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet policy settle set 1 default 1000h
-./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT paynet policy settle set 1 default 1000h
-./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT paynet policy settle set 1 default 1000h
-./binary/fcr -a $USER_TOKEN -p $USER_PORT paynet policy reserve set 1 default -1
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet policy reserve set 1 default -1
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet policy reserve set 1 default -1
-./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT paynet policy reserve set 1 default -1
-./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT paynet policy reserve set 1 default -1
+docker exec $USER fcr paynet policy settle set 1 default 1000h
+docker exec $BROKER1 fcr paynet policy settle set 1 default 1000h
+docker exec $BROKER2 fcr paynet policy settle set 1 default 1000h
+docker exec $PROVIDER1 fcr paynet policy settle set 1 default 1000h
+docker exec $PROVIDER2 fcr paynet policy settle set 1 default 1000h
+docker exec $USER fcr paynet policy reserve set 1 default -1
+docker exec $BROKER1 fcr paynet policy reserve set 1 default -1
+docker exec $BROKER2 fcr paynet policy reserve set 1 default -1
+docker exec $PROVIDER1 fcr paynet policy reserve set 1 default -1
+docker exec $PROVIDER2 fcr paynet policy reserve set 1 default -1
 
 # Create payment channels
-pvd1=$(./binary/fcr -a $PROVIDER1_TOKEN -p $PROVIDER1_PORT wallet get 1 | cut -d " " -f1)
-pvd2=$(./binary/fcr -a $PROVIDER2_TOKEN -p $PROVIDER2_PORT wallet get 1 | cut -d " " -f1)
-broker1=$(./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT wallet get 1 | cut -d " " -f1)
-broker2=$(./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT wallet get 1 | cut -d " " -f1)
-offer=$(./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet paych query 1 $pvd1 | tail -1 | cut -d " " -f3)
-chAddr=$(./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet serving serve 1 $pvd1 $chAddr 1 100
-offer=$(./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet paych query 1 $pvd2 | tail -1 | cut -d " " -f3)
-chAddr=$(./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
-./binary/fcr -a $BROKER1_TOKEN -p $BROKER1_PORT paynet serving serve 1 $pvd2 $chAddr 1 100
-offer=$(./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet paych query 1 $pvd1 | tail -1 | cut -d " " -f3)
-chAddr=$(./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet serving serve 1 $pvd1 $chAddr 1 100
-offer=$(./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet paych query 1 $pvd2 | tail -1 | cut -d " " -f3)
-chAddr=$(./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
-./binary/fcr -a $BROKER2_TOKEN -p $BROKER2_PORT paynet serving serve 1 $pvd2 $chAddr 1 100
-offer=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT paynet paych query 1 $broker1 | tail -1 | cut -d " " -f3)
-./binary/fcr -a $USER_TOKEN -p $USER_PORT paynet paych create $offer 500000000000000000 | tail -1
-offer=$(./binary/fcr -a $USER_TOKEN -p $USER_PORT paynet paych query 1 $broker2 | tail -1 | cut -d " " -f3)
-./binary/fcr -a $USER_TOKEN -p $USER_PORT paynet paych create $offer 250000000000000000 | tail -1
+pvd1=$(docker exec $PROVIDER1 fcr wallet get 1 | cut -d " " -f1)
+pvd2=$(docker exec $PROVIDER2 fcr wallet get 1 | cut -d " " -f1)
+broker1=$(docker exec $BROKER1 fcr wallet get 1 | cut -d " " -f1)
+broker2=$(docker exec $BROKER2 fcr wallet get 1 | cut -d " " -f1)
+offer=$(docker exec $BROKER1 fcr paynet paych query 1 $pvd1 | tail -1 | cut -d " " -f3)
+chAddr=$(docker exec $BROKER1 fcr paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
+docker exec $BROKER1 fcr paynet serving serve 1 $pvd1 $chAddr 1 100
+offer=$(docker exec $BROKER1 fcr paynet paych query 1 $pvd2 | tail -1 | cut -d " " -f3)
+chAddr=$(docker exec $BROKER1 fcr paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
+docker exec $BROKER1 fcr paynet serving serve 1 $pvd2 $chAddr 1 100
+offer=$(docker exec $BROKER2 fcr paynet paych query 1 $pvd1 | tail -1 | cut -d " " -f3)
+chAddr=$(docker exec $BROKER2 fcr paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
+docker exec $BROKER2 fcr paynet serving serve 1 $pvd1 $chAddr 1 100
+offer=$(docker exec $BROKER2 fcr paynet paych query 1 $pvd2 | tail -1 | cut -d " " -f3)
+chAddr=$(docker exec $BROKER2 fcr paynet paych create $offer 1000000000000000000 | head -2 | tail -1)
+docker exec $BROKER2 fcr paynet serving serve 1 $pvd2 $chAddr 1 100
+offer=$(docker exec $USER fcr paynet paych query 1 $broker1 | tail -1 | cut -d " " -f3)
+docker exec $USER fcr paynet paych create $offer 500000000000000000 | tail -1
+offer=$(docker exec $USER fcr paynet paych query 1 $broker2 | tail -1 | cut -d " " -f3)
+docker exec $USER fcr paynet paych create $offer 250000000000000000 | tail -1
