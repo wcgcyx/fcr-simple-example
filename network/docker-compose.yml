@@ -59,9 +59,13 @@ services:
     container_name: fcr-example-user
     networks:
       - shared
-    command: fcr daemon
+    ports:
+      - 9559:9559
+    command: /scripts/start_user.sh
     volumes:
       - ./node_config.yaml:/root/.fcr/config.yaml
+      - ./scripts:/scripts
+      - ./proxy:/proxy
     depends_on:
       - mc
 
