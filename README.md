@@ -28,6 +28,7 @@ cd network
 docker compose up
 ```
 (If you have run the demo previously and you wish to clean, run `docker compose down`)
+
 Open another terminal:
 ```
 ./setup.sh
